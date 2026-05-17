@@ -1,0 +1,23 @@
+# Generated datasets and pipeline outputs
+/data/raw/
+/data/processed/
+/outputs/
+
+# Python cache/build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Local environments and machine-specific files
+.venv/
+venv/
+env/
+.env
+.env.*
+.vscode/

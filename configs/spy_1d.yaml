@@ -1,0 +1,32 @@
+ticker: SPY
+interval: 1d
+start: "2010-01-01"
+end: null
+
+data:
+  auto_download: true
+
+cpm:
+  p_values: [0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.10, 0.12]
+  t_values: [2, 4, 6 ,8, 10, 12, 14, 16, 18]
+  selection_method: pareto_knee
+
+ma_ga:
+  population_size: 50
+  generations: 30
+  cx_prob: 0.7
+  mut_prob: 0.3
+  seed: 42
+  match_window: 5
+
+ma_bounds:
+  n_min: 5
+  n_max: 60
+  N_min: 20
+  N_max: 200
+  a_min: 1.2
+  a_max: 5.0
+  b_min: 0.5
+  b_max: 3.0
+  c_min: 0.001
+  c_max: 0.10
