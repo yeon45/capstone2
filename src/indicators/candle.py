@@ -182,24 +182,4 @@ def generate_candle_signals(
     return result
 
 
-def add_candle_patterns(
-    df: pd.DataFrame,
-    open_col: str = "Open",
-    high_col: str = "High",
-    low_col: str = "Low",
-    close_col: str = "Close",
-    params: Sequence[float] | None = None,
-) -> pd.DataFrame:
-    """Backward-compatible wrapper for generating candle signals."""
-
-    return generate_candle_signals(
-        df,
-        params=params or [2.0, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0],
-        open_col=open_col,
-        high_col=high_col,
-        low_col=low_col,
-        close_col=close_col,
-    )
-
-
 CANDLE_PATTERN_COLUMNS = CANDLE_SIGNAL_COLUMNS
