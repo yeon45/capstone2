@@ -35,6 +35,30 @@ def get_ma_signal_data_path(ticker: str, interval: str) -> Path:
     return get_processed_dir(ticker, interval) / f"{ticker}_with_ma_signals.csv"
 
 
+def get_rsi_signal_data_path(ticker: str, interval: str) -> Path:
+    """Return processed RSI signal CSV path."""
+
+    return get_processed_dir(ticker, interval) / f"{ticker}_with_rsi_signals.csv"
+
+
+def get_roc_signal_data_path(ticker: str, interval: str) -> Path:
+    """Return processed ROC signal CSV path."""
+
+    return get_processed_dir(ticker, interval) / f"{ticker}_with_roc_signals.csv"
+
+
+def get_stochastic_signal_data_path(ticker: str, interval: str) -> Path:
+    """Return processed Stochastic signal CSV path."""
+
+    return get_processed_dir(ticker, interval) / f"{ticker}_with_stochastic_signals.csv"
+
+
+def get_candle_patterns_data_path(ticker: str, interval: str) -> Path:
+    """Return processed candle pattern CSV path."""
+
+    return get_processed_dir(ticker, interval) / f"{ticker}_with_candle_patterns.csv"
+
+
 def get_all_signals_data_path(ticker: str, interval: str) -> Path:
     """Return processed all-signals CSV path."""
 
@@ -83,6 +107,30 @@ def get_ma_signal_output_path(ticker: str, interval: str) -> Path:
     return get_signals_output_dir(ticker, interval) / f"{ticker}_with_ma_signals.csv"
 
 
+def get_rsi_signal_output_path(ticker: str, interval: str) -> Path:
+    """Return output RSI signal CSV path."""
+
+    return get_signals_output_dir(ticker, interval) / f"{ticker}_with_rsi_signals.csv"
+
+
+def get_roc_signal_output_path(ticker: str, interval: str) -> Path:
+    """Return output ROC signal CSV path."""
+
+    return get_signals_output_dir(ticker, interval) / f"{ticker}_with_roc_signals.csv"
+
+
+def get_stochastic_signal_output_path(ticker: str, interval: str) -> Path:
+    """Return output Stochastic signal CSV path."""
+
+    return get_signals_output_dir(ticker, interval) / f"{ticker}_with_stochastic_signals.csv"
+
+
+def get_candle_patterns_output_path(ticker: str, interval: str) -> Path:
+    """Return output candle pattern CSV path."""
+
+    return get_signals_output_dir(ticker, interval) / f"{ticker}_with_candle_patterns.csv"
+
+
 def get_all_indicator_signals_path(ticker: str, interval: str) -> Path:
     """Return output all-indicator signal CSV path."""
 
@@ -105,6 +153,36 @@ def get_ma_figure_path(ticker: str, interval: str) -> Path:
     """Return MA signal figure path."""
 
     return get_figures_dir(ticker, interval) / "ma_signals.png"
+
+
+def get_rsi_figure_path(ticker: str, interval: str) -> Path:
+    """Return RSI signal figure path."""
+
+    return get_figures_dir(ticker, interval) / "rsi_signals.png"
+
+
+def get_roc_figure_path(ticker: str, interval: str) -> Path:
+    """Return ROC signal figure path."""
+
+    return get_figures_dir(ticker, interval) / "roc_signals.png"
+
+
+def get_stochastic_figure_path(ticker: str, interval: str) -> Path:
+    """Return Stochastic signal figure path."""
+
+    return get_figures_dir(ticker, interval) / "stochastic_signals.png"
+
+
+def get_candle_patterns_figure_path(ticker: str, interval: str) -> Path:
+    """Return candle pattern signal figure path."""
+
+    return get_figures_dir(ticker, interval) / "candle_patterns.png"
+
+
+def get_candle_pattern_counts_figure_path(ticker: str, interval: str) -> Path:
+    """Return candle pattern counts figure path."""
+
+    return get_figures_dir(ticker, interval) / "candle_pattern_counts.png"
 
 
 def ensure_parent_dir(path: Path) -> None:

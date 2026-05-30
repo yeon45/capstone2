@@ -19,6 +19,36 @@ ma_ga:
   seed: 42
   match_window: 5
 
+rsi_ga:
+  population_size: 50
+  generations: 30
+  cx_prob: 0.7
+  mut_prob: 0.2
+  seed: 42
+  match_window: 5
+
+roc_ga:
+  population_size: 50
+  generations: 30
+  cx_prob: 0.7
+  mut_prob: 0.2
+  seed: 42
+  match_window: 5
+
+stochastic_ga:
+  population_size: 50
+  generations: 30
+  cx_prob: 0.7
+  mut_prob: 0.2
+  seed: 42
+  match_window: 5
+  use_cross: false
+
+candle:
+  hammer_ratio: 2.0
+  upper_shadow_ratio: 1.0
+  use_gap_condition: false
+
 ma_bounds:
   n_min: 5
   n_max: 60
@@ -30,3 +60,29 @@ ma_bounds:
   b_max: 3.0
   c_min: 0.001
   c_max: 0.10
+
+rsi_bounds:
+  period_min: 5
+  period_max: 30
+  lower_min: 10
+  lower_max: 40
+  upper_min: 60
+  upper_max: 90
+
+roc_bounds:
+  period_min: 3
+  period_max: 30
+  buy_threshold_min: 0.1
+  buy_threshold_max: 10.0
+  sell_threshold_min: -10.0
+  sell_threshold_max: -0.1
+
+stochastic_bounds:
+  k_period_min: 5
+  k_period_max: 30
+  d_period_min: 3
+  d_period_max: 10
+  lower_min: 10
+  lower_max: 40
+  upper_min: 60
+  upper_max: 90
