@@ -11,7 +11,7 @@ import pandas as pd
 from deap import base, creator, tools
 
 from src.ga.base_optimizer import compile_population_stats
-from src.ga.fitness import calculate_signal_fitness
+from src.ga.fitness import calculate_price_error_buy_sell_fitness
 from src.indicators.roc import DEFAULT_ROC_BOUNDS, generate_roc_signals, repair_roc_params
 
 
@@ -90,6 +90,8 @@ def evaluate_roc_individual(
     df: pd.DataFrame,
     label_col: str = "turning_label",
     close_col: str = "Close",
+    high_col: str = "High",
+    low_col: str = "Low",
     window: int = 5,
     bounds: dict | None = None,
 ) -> tuple[float]:
@@ -103,12 +105,16 @@ def evaluate_roc_individual(
         sell_threshold=sell_threshold,
         close_col=close_col,
     )
-    fitness, _ = calculate_signal_fitness(
+    fitness, _ = calculate_price_error_buy_sell_fitness(
         signal_df,
         label_col=label_col,
         buy_signal_col="roc_buy_signal",
         sell_signal_col="roc_sell_signal",
-        window=window,
+        price_col=close_col,
+        high_col=high_col,
+        low_col=low_col,
+        close_col=close_col,
+        max_time_window=window,
     )
     return (fitness,)
 
@@ -117,6 +123,8 @@ def setup_roc_toolbox(
     df: pd.DataFrame,
     label_col: str = "turning_label",
     close_col: str = "Close",
+    high_col: str = "High",
+    low_col: str = "Low",
     window: int = 5,
     bounds: dict | None = None,
 ) -> base.Toolbox:
@@ -142,6 +150,8 @@ def setup_roc_toolbox(
             df=df,
             label_col=label_col,
             close_col=close_col,
+            high_col=high_col,
+            low_col=low_col,
             window=window,
             bounds=bounds,
         ),
@@ -156,6 +166,8 @@ def run_roc_ga(
     df: pd.DataFrame,
     label_col: str = "turning_label",
     close_col: str = "Close",
+    high_col: str = "High",
+    low_col: str = "Low",
     window: int = 5,
     population_size: int = 50,
     generations: int = 30,
@@ -173,6 +185,8 @@ def run_roc_ga(
         df,
         label_col=label_col,
         close_col=close_col,
+        high_col=high_col,
+        low_col=low_col,
         window=window,
         bounds=bounds,
     )

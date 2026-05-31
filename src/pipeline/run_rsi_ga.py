@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from src.ga.fitness import calculate_signal_fitness
+from src.ga.fitness import calculate_price_error_buy_sell_fitness
 from src.ga.rsi_optimizer import run_rsi_ga
 from src.indicators.rsi import generate_rsi_signals
 from src.utils.config import load_config
@@ -44,7 +44,7 @@ def main() -> None:
         raise FileNotFoundError(f"TP data not found: {tp_path}. Run run_cpm first.")
 
     df = load_dataframe(tp_path)
-    missing = [col for col in ["Close", "turning_label"] if col not in df.columns]
+    missing = [col for col in ["High", "Low", "Close", "turning_label"] if col not in df.columns]
     if missing:
         raise ValueError(f"TP data missing required columns: {missing}")
 
@@ -73,12 +73,16 @@ def main() -> None:
         upper_threshold=float(best_params[2]),
         close_col="Close",
     )
-    _, fitness_details = calculate_signal_fitness(
+    _, fitness_details = calculate_price_error_buy_sell_fitness(
         signal_df,
         label_col="turning_label",
         buy_signal_col="rsi_buy_signal",
         sell_signal_col="rsi_sell_signal",
-        window=int(ga_config["match_window"]),
+        price_col="Close",
+        high_col="High",
+        low_col="Low",
+        close_col="Close",
+        max_time_window=int(ga_config["match_window"]),
     )
 
     payload = {

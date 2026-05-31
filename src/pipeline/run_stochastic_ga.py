@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from src.ga.fitness import calculate_signal_fitness
+from src.ga.fitness import calculate_price_error_buy_sell_fitness
 from src.ga.stochastic_optimizer import run_stochastic_ga
 from src.indicators.stochastic import generate_stochastic_signals
 from src.utils.config import load_config
@@ -82,12 +82,16 @@ def main() -> None:
         close_col="Close",
         use_cross=use_cross,
     )
-    _, fitness_details = calculate_signal_fitness(
+    _, fitness_details = calculate_price_error_buy_sell_fitness(
         signal_df,
         label_col="turning_label",
         buy_signal_col="stoch_buy_signal",
         sell_signal_col="stoch_sell_signal",
-        window=int(ga_config["match_window"]),
+        price_col="Close",
+        high_col="High",
+        low_col="Low",
+        close_col="Close",
+        max_time_window=int(ga_config["match_window"]),
     )
 
     payload = {

@@ -137,6 +137,24 @@ def get_all_indicator_signals_path(ticker: str, interval: str) -> Path:
     return get_signals_output_dir(ticker, interval) / f"{ticker}_all_indicator_signals.csv"
 
 
+def get_predictions_output_dir(ticker: str, interval: str) -> Path:
+    """Return prediction output directory."""
+
+    return Path("outputs") / "predictions" / ticker / interval
+
+
+def get_esn_predictions_path(ticker: str, interval: str) -> Path:
+    """Return ESN prediction CSV path."""
+
+    return get_predictions_output_dir(ticker, interval) / f"{ticker}_esn_predictions.csv"
+
+
+def get_esn_metrics_path(ticker: str, interval: str) -> Path:
+    """Return ESN metrics JSON path."""
+
+    return get_predictions_output_dir(ticker, interval) / f"{ticker}_esn_metrics.json"
+
+
 def get_figures_dir(ticker: str, interval: str) -> Path:
     """Return figure output directory."""
 

@@ -52,6 +52,17 @@ candle_ga:
   seed: 42
   match_window: 5
 
+esn:
+  reservoir_size: 200
+  spectral_radius: 0.9
+  sparsity: 0.1
+  leaking_rate: 0.3
+  ridge_alpha: 1.0
+  random_state: 42
+  washout: 30
+  class_weight: balanced
+  train_ratio: 0.7
+
 ma_bounds:
   n_min: 5
   n_max: 60

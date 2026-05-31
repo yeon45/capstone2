@@ -11,7 +11,7 @@ import pandas as pd
 from deap import base, creator, tools
 
 from src.ga.base_optimizer import compile_population_stats
-from src.ga.fitness import calculate_signal_fitness
+from src.ga.fitness import calculate_price_error_buy_sell_fitness
 from src.indicators.ma import DEFAULT_MA_BOUNDS, generate_ma_signals, repair_ma_params
 
 
@@ -98,6 +98,8 @@ def evaluate_ma_individual(
     df: pd.DataFrame,
     label_col: str = "turning_label",
     close_col: str = "Close",
+    high_col: str = "High",
+    low_col: str = "Low",
     window: int = 5,
     bounds: dict | None = None,
 ) -> tuple[float]:
@@ -105,12 +107,16 @@ def evaluate_ma_individual(
 
     params = repair_ma_params(individual, bounds=bounds)
     signal_df = generate_ma_signals(df, params, close_col=close_col, normalize=True)
-    fitness, _ = calculate_signal_fitness(
+    fitness, _ = calculate_price_error_buy_sell_fitness(
         signal_df,
         label_col=label_col,
         buy_signal_col="ma_buy_signal",
         sell_signal_col="ma_sell_signal",
-        window=window,
+        price_col=close_col,
+        high_col=high_col,
+        low_col=low_col,
+        close_col=close_col,
+        max_time_window=window,
     )
     return (fitness,)
 
@@ -119,6 +125,8 @@ def setup_ma_toolbox(
     df: pd.DataFrame,
     label_col: str = "turning_label",
     close_col: str = "Close",
+    high_col: str = "High",
+    low_col: str = "Low",
     window: int = 5,
     bounds: dict | None = None,
 ) -> base.Toolbox:
@@ -144,6 +152,8 @@ def setup_ma_toolbox(
             df=df,
             label_col=label_col,
             close_col=close_col,
+            high_col=high_col,
+            low_col=low_col,
             window=window,
             bounds=bounds,
         ),
@@ -158,6 +168,8 @@ def run_ma_ga(
     df: pd.DataFrame,
     label_col: str = "turning_label",
     close_col: str = "Close",
+    high_col: str = "High",
+    low_col: str = "Low",
     window: int = 5,
     population_size: int = 50,
     generations: int = 30,
@@ -175,6 +187,8 @@ def run_ma_ga(
         df,
         label_col=label_col,
         close_col=close_col,
+        high_col=high_col,
+        low_col=low_col,
         window=window,
         bounds=bounds,
     )

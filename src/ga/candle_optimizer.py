@@ -11,6 +11,7 @@ import pandas as pd
 from deap import base, creator, tools
 
 from src.ga.base_optimizer import compile_population_stats
+from src.ga.fitness import calculate_price_error_signal_fitness
 from src.indicators.candle import (
     CANDLE_SIGNAL_COLUMNS,
     DEFAULT_CANDLE_BOUNDS,
@@ -68,12 +69,15 @@ def calculate_candle_fitness(
     df: pd.DataFrame,
     label_col: str = "turning_label",
     signal_cols: Sequence[str] = CANDLE_SIGNAL_COLUMNS,
+    high_col: str = "High",
+    low_col: str = "Low",
+    close_col: str = "Close",
     window: int = 5,
     buy_label: int = 1,
     sell_label: int = -1,
-    false_signal_penalty: float = 0.0,
+    false_signal_penalty: float = 0.5,
 ) -> tuple[float, dict]:
-    """Calculate fitness from independent signed candle pattern columns."""
+    """Calculate price-error fitness from independent signed candle pattern columns."""
 
     required = [label_col, *signal_cols]
     missing = [col for col in required if col not in df.columns]
@@ -82,35 +86,24 @@ def calculate_candle_fitness(
     if window < 0:
         raise ValueError("window must be non-negative")
 
-    signal_values = df[list(signal_cols)].to_numpy()
-    true_buy = np.flatnonzero((df[label_col] == buy_label).to_numpy()).tolist()
-    true_sell = np.flatnonzero((df[label_col] == sell_label).to_numpy()).tolist()
-    pred_buy = np.flatnonzero((signal_values == 1).any(axis=1)).tolist()
-    pred_sell = np.flatnonzero((signal_values == -1).any(axis=1)).tolist()
-
-    buy_tp, buy_fp, buy_fn = _match_events_with_forward_window(true_buy, pred_buy, window)
-    sell_tp, sell_fp, sell_fn = _match_events_with_forward_window(true_sell, pred_sell, window)
-    buy_f1 = _safe_f1(buy_tp, buy_fp, buy_fn)
-    sell_f1 = _safe_f1(sell_tp, sell_fp, sell_fn)
-    fitness = (buy_f1 + sell_f1) / 2
-
-    if false_signal_penalty > 0:
-        fitness -= false_signal_penalty * (buy_fp + sell_fp)
-
-    fitness = max(0.0, float(fitness))
-    details = {
-        "fitness": fitness,
-        "buy_f1": buy_f1,
-        "sell_f1": sell_f1,
-        "buy_tp": buy_tp,
-        "buy_fp": buy_fp,
-        "buy_fn": buy_fn,
-        "sell_tp": sell_tp,
-        "sell_fp": sell_fp,
-        "sell_fn": sell_fn,
-        "num_buy_signals": len(pred_buy),
-        "num_sell_signals": len(pred_sell),
-    }
+    signal_values = df[list(signal_cols)].to_numpy(dtype=float)
+    signed_signal = np.sign(signal_values.sum(axis=1)).astype(int)
+    temp_df = df.copy()
+    temp_df["__candle_signed_signal__"] = signed_signal
+    fitness, details = calculate_price_error_signal_fitness(
+        temp_df,
+        signal_col="__candle_signed_signal__",
+        label_col=label_col,
+        price_col=close_col,
+        high_col=high_col,
+        low_col=low_col,
+        close_col=close_col,
+        max_time_window=window,
+        false_signal_penalty=false_signal_penalty,
+    )
+    details["signal_columns"] = list(signal_cols)
+    details["buy_label"] = buy_label
+    details["sell_label"] = sell_label
     return fitness, details
 
 

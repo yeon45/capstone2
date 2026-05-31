@@ -11,7 +11,7 @@ import pandas as pd
 from deap import base, creator, tools
 
 from src.ga.base_optimizer import compile_population_stats
-from src.ga.fitness import calculate_signal_fitness
+from src.ga.fitness import calculate_price_error_buy_sell_fitness
 from src.indicators.stochastic import (
     DEFAULT_STOCHASTIC_BOUNDS,
     generate_stochastic_signals,
@@ -121,12 +121,16 @@ def evaluate_stochastic_individual(
         close_col=close_col,
         use_cross=use_cross,
     )
-    fitness, _ = calculate_signal_fitness(
+    fitness, _ = calculate_price_error_buy_sell_fitness(
         signal_df,
         label_col=label_col,
         buy_signal_col="stoch_buy_signal",
         sell_signal_col="stoch_sell_signal",
-        window=window,
+        price_col=close_col,
+        high_col=high_col,
+        low_col=low_col,
+        close_col=close_col,
+        max_time_window=window,
     )
     return (fitness,)
 

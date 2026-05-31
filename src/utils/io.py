@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
+with contextlib.redirect_stderr(io.StringIO()):
+    import pandas as pd
 
 from src.utils.paths import ensure_parent_dir
 
