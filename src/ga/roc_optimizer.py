@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from deap import base, creator, tools
 
-from src.ga.base_optimizer import compile_population_stats
+from src.ga.base_optimizer import record_generation_stats
 from src.ga.fitness import calculate_price_error_buy_sell_fitness
 from src.indicators.roc import DEFAULT_ROC_BOUNDS, generate_roc_signals, repair_roc_params
 
@@ -94,6 +94,7 @@ def evaluate_roc_individual(
     low_col: str = "Low",
     window: int = 5,
     bounds: dict | None = None,
+    fitness_config: dict[str, Any] | None = None,
 ) -> tuple[float]:
     """Evaluate a ROC individual and return a DEAP fitness tuple."""
 
@@ -105,6 +106,8 @@ def evaluate_roc_individual(
         sell_threshold=sell_threshold,
         close_col=close_col,
     )
+    fitness_kwargs = dict(fitness_config or {})
+    window = int(fitness_kwargs.pop("max_time_window", window))
     fitness, _ = calculate_price_error_buy_sell_fitness(
         signal_df,
         label_col=label_col,
@@ -115,6 +118,7 @@ def evaluate_roc_individual(
         low_col=low_col,
         close_col=close_col,
         max_time_window=window,
+        **fitness_kwargs,
     )
     return (fitness,)
 
@@ -127,6 +131,7 @@ def setup_roc_toolbox(
     low_col: str = "Low",
     window: int = 5,
     bounds: dict | None = None,
+    fitness_config: dict[str, Any] | None = None,
 ) -> base.Toolbox:
     """Set up a DEAP toolbox for ROC parameter optimization."""
 
@@ -154,6 +159,7 @@ def setup_roc_toolbox(
             low_col=low_col,
             window=window,
             bounds=bounds,
+            fitness_config=fitness_config,
         ),
     )
     toolbox.register("mate", mate_roc_individual, bounds=bounds)
@@ -175,6 +181,7 @@ def run_roc_ga(
     mut_prob: float = 0.2,
     seed: int = 42,
     bounds: dict | None = None,
+    fitness_config: dict[str, Any] | None = None,
 ) -> tuple[list[float], float, list[dict[str, float | int]]]:
     """Run a manual DEAP GA loop for ROC parameters."""
 
@@ -189,6 +196,7 @@ def run_roc_ga(
         low_col=low_col,
         window=window,
         bounds=bounds,
+        fitness_config=fitness_config,
     )
     population = toolbox.population(n=population_size)
     hof = tools.HallOfFame(1)
@@ -200,13 +208,7 @@ def run_roc_ga(
     hof.update(population)
 
     def record(gen: int) -> None:
-        stats = compile_population_stats(population)
-        entry = {"gen": gen, **stats}
-        logbook.append(entry)
-        print(
-            f"gen={gen:03d} max={entry['max']:.6f} "
-            f"avg={entry['avg']:.6f} min={entry['min']:.6f}"
-        )
+        record_generation_stats(population, logbook, gen)
 
     record(0)
 

@@ -29,6 +29,12 @@ def _param_dict(params: list[float]) -> dict:
     }
 
 
+def _fitness_config(config: dict, ga_config: dict) -> tuple[int, dict]:
+    fitness_config = dict(config.get("fitness", {}))
+    match_window = int(fitness_config.pop("max_time_window", ga_config["match_window"]))
+    return match_window, fitness_config
+
+
 def main() -> None:
     """Run ROC parameter optimization and save signal outputs."""
 
@@ -52,18 +58,20 @@ def main() -> None:
     cpm_params = load_json(cpm_params_path)
     ga_config = config["roc_ga"]
     bounds = config.get("roc_bounds")
+    match_window, fitness_config = _fitness_config(config, ga_config)
 
     best_params, best_fitness, logbook = run_roc_ga(
         df,
         label_col="turning_label",
         close_col="Close",
-        window=int(ga_config["match_window"]),
+        window=match_window,
         population_size=int(ga_config["population_size"]),
         generations=int(ga_config["generations"]),
         cx_prob=float(ga_config["cx_prob"]),
         mut_prob=float(ga_config["mut_prob"]),
         seed=int(ga_config["seed"]),
         bounds=bounds,
+        fitness_config=fitness_config,
     )
 
     signal_df = generate_roc_signals(
@@ -82,7 +90,8 @@ def main() -> None:
         high_col="High",
         low_col="Low",
         close_col="Close",
-        max_time_window=int(ga_config["match_window"]),
+        max_time_window=match_window,
+        **fitness_config,
     )
 
     payload = {
@@ -95,6 +104,7 @@ def main() -> None:
         "best_fitness": best_fitness,
         "fitness": fitness_details,
         "ga_config": ga_config,
+        "fitness_config": {"max_time_window": match_window, **fitness_config},
         "ga_logbook": logbook,
     }
 

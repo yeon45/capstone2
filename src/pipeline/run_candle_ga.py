@@ -38,6 +38,19 @@ def _param_dict(params: list[float]) -> dict:
     }
 
 
+def _fitness_config(config: dict, ga_config: dict) -> tuple[int, dict]:
+    fitness_config = dict(config.get("fitness", {}))
+    match_window = int(fitness_config.pop("max_time_window", ga_config["match_window"]))
+    return match_window, fitness_config
+
+
+def _empty_candle_signal_df(df):
+    signal_df = df.copy()
+    for col in CANDLE_SIGNAL_COLUMNS:
+        signal_df[col] = 0
+    return signal_df
+
+
 def main() -> None:
     """Run candle parameter optimization and save signal outputs."""
 
@@ -65,35 +78,63 @@ def main() -> None:
     cpm_params = load_json(cpm_params_path)
     ga_config = config["candle_ga"]
     bounds = config.get("candle_bounds")
+    match_window, fitness_config = _fitness_config(config, ga_config)
 
-    best_params, best_fitness, logbook = run_candle_ga(
-        df,
-        label_col="turning_label",
-        open_col="Open",
-        high_col="High",
-        low_col="Low",
-        close_col="Close",
-        window=int(ga_config["match_window"]),
-        population_size=int(ga_config["population_size"]),
-        generations=int(ga_config["generations"]),
-        cx_prob=float(ga_config["cx_prob"]),
-        mut_prob=float(ga_config["mut_prob"]),
-        seed=int(ga_config["seed"]),
-        bounds=bounds,
-    )
+    signal_df = _empty_candle_signal_df(df)
+    pattern_results = {}
+    for offset, signal_col in enumerate(CANDLE_SIGNAL_COLUMNS):
+        print(f"optimizing candle pattern: {signal_col}")
+        best_params, best_fitness, logbook = run_candle_ga(
+            df,
+            label_col="turning_label",
+            open_col="Open",
+            high_col="High",
+            low_col="Low",
+            close_col="Close",
+            window=match_window,
+            signal_cols=[signal_col],
+            population_size=int(ga_config["population_size"]),
+            generations=int(ga_config["generations"]),
+            cx_prob=float(ga_config["cx_prob"]),
+            mut_prob=float(ga_config["mut_prob"]),
+            seed=int(ga_config["seed"]) + offset,
+            bounds=bounds,
+            fitness_config=fitness_config,
+        )
+        pattern_signal_df = generate_candle_signals(
+            df,
+            params=best_params,
+            open_col="Open",
+            high_col="High",
+            low_col="Low",
+            close_col="Close",
+        )
+        signal_df[signal_col] = pattern_signal_df[signal_col]
+        _, pattern_fitness_details = calculate_candle_fitness(
+            pattern_signal_df,
+            label_col="turning_label",
+            signal_cols=[signal_col],
+            window=match_window,
+            high_col="High",
+            low_col="Low",
+            close_col="Close",
+            fitness_config=fitness_config,
+        )
+        pattern_results[signal_col] = {
+            "best_params": _param_dict(best_params),
+            "best_fitness": best_fitness,
+            "fitness": pattern_fitness_details,
+            "ga_logbook": logbook,
+        }
 
-    signal_df = generate_candle_signals(
-        df,
-        params=best_params,
-        open_col="Open",
-        high_col="High",
-        low_col="Low",
-        close_col="Close",
-    )
     _, fitness_details = calculate_candle_fitness(
         signal_df,
         label_col="turning_label",
-        window=int(ga_config["match_window"]),
+        window=match_window,
+        high_col="High",
+        low_col="Low",
+        close_col="Close",
+        fitness_config=fitness_config,
     )
 
     payload = {
@@ -102,11 +143,16 @@ def main() -> None:
         "indicator": "Candle",
         "target_label_source": "CPM",
         "cpm_params": {"P": cpm_params["P"], "T": cpm_params["T"]},
-        "best_params": _param_dict(best_params),
-        "best_fitness": best_fitness,
+        "best_params": {
+            pattern: result["best_params"] for pattern, result in pattern_results.items()
+        },
+        "best_fitness": {
+            pattern: result["best_fitness"] for pattern, result in pattern_results.items()
+        },
         "fitness": fitness_details,
+        "pattern_results": pattern_results,
         "ga_config": ga_config,
-        "ga_logbook": logbook,
+        "fitness_config": {"max_time_window": match_window, **fitness_config},
     }
 
     params_path = get_indicator_param_path(ticker, interval, "candle")
@@ -124,9 +170,9 @@ def main() -> None:
     plot_candle_pattern_counts(signal_df, counts_figure_path, CANDLE_SIGNAL_COLUMNS)
 
     pattern_counts = {col: int((signal_df[col] != 0).sum()) for col in CANDLE_SIGNAL_COLUMNS}
-    print("best candle params:")
+    print("best candle params by pattern:")
     print(json.dumps(payload["best_params"], indent=2))
-    print("final fitness details:")
+    print("combined final fitness details:")
     print(json.dumps(fitness_details, indent=2))
     print("candle pattern counts:")
     print(json.dumps(pattern_counts, indent=2))

@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from deap import base, creator, tools
 
-from src.ga.base_optimizer import compile_population_stats
+from src.ga.base_optimizer import record_generation_stats
 from src.ga.fitness import calculate_price_error_signal_fitness
 from src.indicators.candle import (
     CANDLE_SIGNAL_COLUMNS,
@@ -76,6 +76,7 @@ def calculate_candle_fitness(
     buy_label: int = 1,
     sell_label: int = -1,
     false_signal_penalty: float = 0.5,
+    fitness_config: dict[str, Any] | None = None,
 ) -> tuple[float, dict]:
     """Calculate price-error fitness from independent signed candle pattern columns."""
 
@@ -90,6 +91,9 @@ def calculate_candle_fitness(
     signed_signal = np.sign(signal_values.sum(axis=1)).astype(int)
     temp_df = df.copy()
     temp_df["__candle_signed_signal__"] = signed_signal
+    fitness_kwargs = dict(fitness_config or {})
+    window = int(fitness_kwargs.pop("max_time_window", window))
+    false_signal_penalty = float(fitness_kwargs.pop("false_signal_penalty", false_signal_penalty))
     fitness, details = calculate_price_error_signal_fitness(
         temp_df,
         signal_col="__candle_signed_signal__",
@@ -100,6 +104,7 @@ def calculate_candle_fitness(
         close_col=close_col,
         max_time_window=window,
         false_signal_penalty=false_signal_penalty,
+        **fitness_kwargs,
     )
     details["signal_columns"] = list(signal_cols)
     details["buy_label"] = buy_label
@@ -181,7 +186,9 @@ def evaluate_candle_individual(
     low_col: str = "Low",
     close_col: str = "Close",
     window: int = 5,
+    signal_cols: Sequence[str] = CANDLE_SIGNAL_COLUMNS,
     bounds: dict | None = None,
+    fitness_config: dict[str, Any] | None = None,
 ) -> tuple[float]:
     """Evaluate a candle individual and return a DEAP fitness tuple."""
 
@@ -197,7 +204,12 @@ def evaluate_candle_individual(
     fitness, _ = calculate_candle_fitness(
         signal_df,
         label_col=label_col,
+        signal_cols=signal_cols,
         window=window,
+        high_col=high_col,
+        low_col=low_col,
+        close_col=close_col,
+        fitness_config=fitness_config,
     )
     return (fitness,)
 
@@ -210,7 +222,9 @@ def setup_candle_toolbox(
     low_col: str = "Low",
     close_col: str = "Close",
     window: int = 5,
+    signal_cols: Sequence[str] = CANDLE_SIGNAL_COLUMNS,
     bounds: dict | None = None,
+    fitness_config: dict[str, Any] | None = None,
 ) -> base.Toolbox:
     """Set up a DEAP toolbox for candle parameter optimization."""
 
@@ -238,7 +252,9 @@ def setup_candle_toolbox(
             low_col=low_col,
             close_col=close_col,
             window=window,
+            signal_cols=signal_cols,
             bounds=bounds,
+            fitness_config=fitness_config,
         ),
     )
     toolbox.register("mate", mate_candle_individual, bounds=bounds)
@@ -255,12 +271,14 @@ def run_candle_ga(
     low_col: str = "Low",
     close_col: str = "Close",
     window: int = 5,
+    signal_cols: Sequence[str] = CANDLE_SIGNAL_COLUMNS,
     population_size: int = 50,
     generations: int = 30,
     cx_prob: float = 0.7,
     mut_prob: float = 0.2,
     seed: int = 42,
     bounds: dict | None = None,
+    fitness_config: dict[str, Any] | None = None,
 ) -> tuple[list[float], float, list[dict[str, float | int]]]:
     """Run a manual DEAP GA loop for candle parameters."""
 
@@ -275,7 +293,9 @@ def run_candle_ga(
         low_col=low_col,
         close_col=close_col,
         window=window,
+        signal_cols=signal_cols,
         bounds=bounds,
+        fitness_config=fitness_config,
     )
     population = toolbox.population(n=population_size)
     hof = tools.HallOfFame(1)
@@ -287,13 +307,7 @@ def run_candle_ga(
     hof.update(population)
 
     def record(gen: int) -> None:
-        stats = compile_population_stats(population)
-        entry = {"gen": gen, **stats}
-        logbook.append(entry)
-        print(
-            f"gen={gen:03d} max={entry['max']:.6f} "
-            f"avg={entry['avg']:.6f} min={entry['min']:.6f}"
-        )
+        record_generation_stats(population, logbook, gen)
 
     record(0)
 

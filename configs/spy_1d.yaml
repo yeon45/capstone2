@@ -11,6 +11,16 @@ cpm:
   t_values: [2, 4, 6 ,8, 10, 12, 14, 16, 18]
   selection_method: pareto_knee
 
+fitness:
+  max_time_window: 5
+  atr_window: 14
+  tau: 1.0
+  max_price_error: 2.0
+  false_signal_penalty: 2.0
+  missed_tp_penalty: 1.0
+  duplicate_signal_penalty: 0.25
+  normalize: atr
+
 ma_ga:
   population_size: 50
   generations: 30
@@ -42,7 +52,7 @@ stochastic_ga:
   mut_prob: 0.2
   seed: 42
   match_window: 5
-  use_cross: false
+  use_cross: true
 
 candle_ga:
   population_size: 50

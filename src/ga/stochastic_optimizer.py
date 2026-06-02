@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from deap import base, creator, tools
 
-from src.ga.base_optimizer import compile_population_stats
+from src.ga.base_optimizer import record_generation_stats
 from src.ga.fitness import calculate_price_error_buy_sell_fitness
 from src.indicators.stochastic import (
     DEFAULT_STOCHASTIC_BOUNDS,
@@ -103,6 +103,7 @@ def evaluate_stochastic_individual(
     window: int = 5,
     use_cross: bool = False,
     bounds: dict | None = None,
+    fitness_config: dict[str, Any] | None = None,
 ) -> tuple[float]:
     """Evaluate a Stochastic individual and return a DEAP fitness tuple."""
 
@@ -121,6 +122,8 @@ def evaluate_stochastic_individual(
         close_col=close_col,
         use_cross=use_cross,
     )
+    fitness_kwargs = dict(fitness_config or {})
+    window = int(fitness_kwargs.pop("max_time_window", window))
     fitness, _ = calculate_price_error_buy_sell_fitness(
         signal_df,
         label_col=label_col,
@@ -131,6 +134,7 @@ def evaluate_stochastic_individual(
         low_col=low_col,
         close_col=close_col,
         max_time_window=window,
+        **fitness_kwargs,
     )
     return (fitness,)
 
@@ -144,6 +148,7 @@ def setup_stochastic_toolbox(
     window: int = 5,
     use_cross: bool = False,
     bounds: dict | None = None,
+    fitness_config: dict[str, Any] | None = None,
 ) -> base.Toolbox:
     """Set up a DEAP toolbox for Stochastic parameter optimization."""
 
@@ -172,6 +177,7 @@ def setup_stochastic_toolbox(
             window=window,
             use_cross=use_cross,
             bounds=bounds,
+            fitness_config=fitness_config,
         ),
     )
     toolbox.register("mate", mate_stochastic_individual, bounds=bounds)
@@ -194,6 +200,7 @@ def run_stochastic_ga(
     seed: int = 42,
     use_cross: bool = False,
     bounds: dict | None = None,
+    fitness_config: dict[str, Any] | None = None,
 ) -> tuple[list[float], float, list[dict[str, float | int]]]:
     """Run a manual DEAP GA loop for Stochastic parameters."""
 
@@ -209,6 +216,7 @@ def run_stochastic_ga(
         window=window,
         use_cross=use_cross,
         bounds=bounds,
+        fitness_config=fitness_config,
     )
     population = toolbox.population(n=population_size)
     hof = tools.HallOfFame(1)
@@ -220,13 +228,7 @@ def run_stochastic_ga(
     hof.update(population)
 
     def record(gen: int) -> None:
-        stats = compile_population_stats(population)
-        entry = {"gen": gen, **stats}
-        logbook.append(entry)
-        print(
-            f"gen={gen:03d} max={entry['max']:.6f} "
-            f"avg={entry['avg']:.6f} min={entry['min']:.6f}"
-        )
+        record_generation_stats(population, logbook, gen)
 
     record(0)
 

@@ -246,7 +246,7 @@ def calculate_price_error_signal_fitness(
     atr_window: int = 14,
     tau: float = 1.0,
     max_price_error: float = 2.0,
-    false_signal_penalty: float = 0.5,
+    false_signal_penalty: float = 0.5, ## 0.5 -> 2.0 roc가 너무 많이 찍힘.
     missed_tp_penalty: float = 1.0,
     duplicate_signal_penalty: float = 0.25,
     normalize: str = "atr",
