@@ -26,8 +26,8 @@ def plot_cpm_turning_points(
 
     dates = pd.to_datetime(df[date_col])
     close = pd.to_numeric(df[close_col], errors="coerce")
-    bottoms = df[label_col] == 1
-    tops = df[label_col] == -1
+    bottoms = df[label_col] == -1
+    tops = df[label_col] == 1
 
     fig, ax = plt.subplots(figsize=(12, 6))
     ax.plot(dates, close, label="Close", linewidth=1.0)

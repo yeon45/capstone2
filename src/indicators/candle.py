@@ -90,7 +90,7 @@ def generate_candle_signals(
 ) -> pd.DataFrame:
     """Generate independent candle pattern signal columns.
 
-    Signals are signed per pattern: bullish=1, bearish=-1, no signal=0.
+    Signals are signed per pattern: bullish/buy=-1, bearish/sell=1, no signal=0.
     No aggregate candle buy/sell columns are created.
     """
 
@@ -134,7 +134,7 @@ def generate_candle_signals(
     )
     result["candle_hammer_hanging_man_signal"] = np.select(
         [hammer_shape & is_white, hammer_shape & is_black],
-        [1, -1],
+        [-1, 1],
         default=0,
     ).astype(int)
 
@@ -147,7 +147,7 @@ def generate_candle_signals(
         & valid_candle
         & valid_previous
     )
-    result["candle_dark_cloud_cover_signal"] = np.where(dark_cloud_cover, -1, 0).astype(int)
+    result["candle_dark_cloud_cover_signal"] = np.where(dark_cloud_cover, 1, 0).astype(int)
 
     piercing_line = (
         prev_is_black
@@ -158,7 +158,7 @@ def generate_candle_signals(
         & valid_candle
         & valid_previous
     )
-    result["candle_piercing_line_signal"] = np.where(piercing_line, 1, 0).astype(int)
+    result["candle_piercing_line_signal"] = np.where(piercing_line, -1, 0).astype(int)
 
     bullish_engulfing = (
         prev_is_black
@@ -168,7 +168,7 @@ def generate_candle_signals(
         & valid_candle
         & valid_previous
     )
-    result["candle_bullish_engulfing_signal"] = np.where(bullish_engulfing, 1, 0).astype(int)
+    result["candle_bullish_engulfing_signal"] = np.where(bullish_engulfing, -1, 0).astype(int)
 
     bearish_engulfing = (
         prev_is_white
@@ -178,7 +178,7 @@ def generate_candle_signals(
         & valid_candle
         & valid_previous
     )
-    result["candle_bearish_engulfing_signal"] = np.where(bearish_engulfing, -1, 0).astype(int)
+    result["candle_bearish_engulfing_signal"] = np.where(bearish_engulfing, 1, 0).astype(int)
     return result
 
 

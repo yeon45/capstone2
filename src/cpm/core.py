@@ -110,7 +110,7 @@ def detect_turning_points(prices: pd.Series, P: float, T: int) -> list[dict]:
 
 
 def turning_points_to_label_array(n_rows: int, turning_points: list[dict]) -> np.ndarray:
-    """Convert CPM turning point dictionaries to a label array."""
+    """Convert CPM turning points to labels using bottom/buy=-1, top/sell=1."""
 
     labels = np.zeros(n_rows, dtype=int)
     for point in turning_points:
@@ -118,7 +118,7 @@ def turning_points_to_label_array(n_rows: int, turning_points: list[dict]) -> np
         if idx < 0 or idx >= n_rows:
             continue
         if point["type"] == "bottom":
-            labels[idx] = 1
-        elif point["type"] == "top":
             labels[idx] = -1
+        elif point["type"] == "top":
+            labels[idx] = 1
     return labels

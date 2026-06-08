@@ -73,8 +73,8 @@ def calculate_candle_fitness(
     low_col: str = "Low",
     close_col: str = "Close",
     window: int = 5,
-    buy_label: int = 1,
-    sell_label: int = -1,
+    buy_label: int = -1,
+    sell_label: int = 1,
     false_signal_penalty: float = 0.5,
     fitness_config: dict[str, Any] | None = None,
 ) -> tuple[float, dict]:

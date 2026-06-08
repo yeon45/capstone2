@@ -53,12 +53,22 @@ def _add_signed_signal(
     buy_col: str,
     sell_col: str,
 ) -> None:
-    """Add one signed signal column from buy/sell indicator columns."""
+    """Add one signed ESN signal column with buy=-1, sell=1, hold=0."""
 
     missing = [col for col in [buy_col, sell_col] if col not in df.columns]
     if missing:
         raise ValueError(f"Cannot build {signal_col}; missing columns: {missing}")
-    df[signal_col] = df[buy_col].fillna(0).astype(int) - df[sell_col].fillna(0).astype(int)
+    df[signal_col] = df[sell_col].fillna(0).astype(int) - df[buy_col].fillna(0).astype(int)
+
+
+def _normalize_cpm_label_convention(df) -> None:
+    """Normalize turning_label to bottom/buy=-1, top/sell=1 when point types exist."""
+
+    if "turning_label" not in df.columns or "cpm_point_type" not in df.columns:
+        return
+    point_type = df["cpm_point_type"].fillna("").astype(str).str.lower()
+    df.loc[point_type == "bottom", "turning_label"] = -1
+    df.loc[point_type == "top", "turning_label"] = 1
 
 
 def main() -> None:
@@ -76,6 +86,7 @@ def main() -> None:
         raise FileNotFoundError(f"MA signal data not found: {ma_path}. Run run_ma_ga first.")
 
     df = load_dataframe(ma_path)
+    _normalize_cpm_label_convention(df)
     _add_signed_signal(df, "ma_signal", "ma_buy_signal", "ma_sell_signal")
     included_indicators = ["MA"]
 

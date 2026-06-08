@@ -14,7 +14,10 @@ def add_turning_labels(
     close_col: str = "Close",
     label_col: str = "turning_label",
 ) -> pd.DataFrame:
-    """Add CPM turning labels and point type strings to a DataFrame."""
+    """Add CPM turning labels and point types.
+
+    Label convention: bottom/buy=-1, top/sell=1, no turning point=0.
+    """
 
     if close_col not in df.columns:
         raise ValueError(f"Missing close column: {close_col}")

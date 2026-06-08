@@ -1,64 +1,49 @@
 # Stock Trading Research Project
 
-## 현재 구현 범위
+## Current Scope
 
-- `yfinance`로 OHLCV 데이터 다운로드 및 전처리
-- CPM으로 고정된 매수/매도 변곡점 라벨 생성
-- CPM 라벨을 기준으로 GA가 다음 지표의 파라미터 최적화
-  - Moving Average
-  - RSI
-  - ROC
-  - Stochastic Oscillator
-  - Hammer / Hanging Man
-  - Dark Cloud Cover
-  - Piercing Line
-  - Bullish Engulfing
-  - Bearish Engulfing
-- 최종 ESN 입력용 9개 signed signal 컬럼 생성
-- ESN 학습/예측은 미구현
+- Download and preprocess stock OHLCV data with `yfinance`
+- Generate CPM turning point labels
+- Optimize technical-indicator signals with GA
+- Build the final 9-column signal dataset for ESN input
+- Convert CPM turning points into a triangle-wave target
+- Train, validate, threshold, and test an ESN trading-score model with a single chronological split
 
-## 프로젝트 구조
+## Project Structure
 
 ```text
 .
 |-- configs/
-|   `-- spy_1d.yaml              # 종목, 기간, CPM/GA 설정
+|   `-- spy_1d.yaml
 |-- data/
-|   |-- raw/                     # 다운로드한 원본 OHLCV 데이터
-|   `-- processed/               # 전처리 데이터, CPM 라벨, 지표 신호
+|   |-- raw/
+|   `-- processed/
 |-- outputs/
-|   |-- cpm/                     # CPM 탐색 결과, 선택 파라미터
-|   |-- figures/                 # CPM/지표 시각화 이미지
-|   |-- indicator_params/        # GA 최적 파라미터 JSON
-|   `-- signals/                 # 지표별 신호, 최종 ESN 입력 신호
+|   |-- cpm/
+|   |-- esn/
+|   |-- figures/
+|   |-- indicator_params/
+|   `-- signals/
 |-- src/
-|   |-- cpm/                     # CPM 탐색, 변곡점 라벨링
-|   |-- data/                    # 데이터 다운로드, 전처리
-|   |-- ga/                      # GA 최적화, fitness 계산
-|   |-- indicators/              # 지표별 signal 생성
-|   |-- pipeline/                # 단계별 실행 스크립트
-|   |-- utils/                   # config, IO, path helper
-|   `-- visualization/           # 결과 시각화
+|   |-- cpm/
+|   |-- data/
+|   |-- esn/
+|   |-- ga/
+|   |-- indicators/
+|   |-- pipeline/
+|   |-- utils/
+|   `-- visualization/
 |-- requirements.txt
 `-- README.md
 ```
 
-## 설치
+## Install
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 설정
-
-- 기본 설정 파일: `configs/spy_1d.yaml`
-- 기본 종목: `SPY`
-- 기본 주기: `1d`
-- 기본 시작일: `2010-01-01`
-- `end: null`이면 실행 시점 기준 최신 데이터까지 다운로드
-- 다른 실험을 하려면 설정 파일을 복사한 뒤 `ticker`, `interval`, `start`, `end`, CPM/GA 설정 수정
-
-## 실행 순서
+## Run Pipeline
 
 ```bash
 python -m src.pipeline.run_data --config configs/spy_1d.yaml
@@ -69,43 +54,10 @@ python -m src.pipeline.run_roc_ga --config configs/spy_1d.yaml
 python -m src.pipeline.run_stochastic_ga --config configs/spy_1d.yaml
 python -m src.pipeline.run_candle_ga --config configs/spy_1d.yaml
 python -m src.pipeline.build_esn_dataset --config configs/spy_1d.yaml
+python -m src.pipeline.run_esn --config configs/spy_1d.yaml
 ```
 
-## 파이프라인 역할
-
-| 순서 | 모듈 | 역할 |
-| --- | --- | --- |
-| 1 | `run_data` | OHLCV 다운로드, 전처리 |
-| 2 | `run_cpm` | CPM 파라미터 탐색, 변곡점 라벨 생성 |
-| 3 | `run_ma_ga` | MA 파라미터 최적화, MA signal 생성 |
-| 4 | `run_rsi_ga` | RSI 파라미터 최적화, RSI signal 생성 |
-| 5 | `run_roc_ga` | ROC 파라미터 최적화, ROC signal 생성 |
-| 6 | `run_stochastic_ga` | Stochastic 파라미터 최적화, Stochastic signal 생성 |
-| 7 | `run_candle_ga` | Candle 파라미터 최적화, Candle signal 생성 |
-| 8 | `build_esn_dataset` | 지표 signal 병합, ESN 입력 데이터 생성 |
-
-## 주요 산출물
-
-- `data/raw/SPY/1d/SPY.csv`
-- `data/processed/SPY/1d/SPY_clean.csv`
-- `data/processed/SPY/1d/SPY_with_tp.csv`
-- `data/processed/SPY/1d/SPY_with_ma_signals.csv`
-- `data/processed/SPY/1d/SPY_with_rsi_signals.csv`
-- `data/processed/SPY/1d/SPY_with_roc_signals.csv`
-- `data/processed/SPY/1d/SPY_with_stochastic_signals.csv`
-- `data/processed/SPY/1d/SPY_with_candle_patterns.csv`
-- `data/processed/SPY/1d/SPY_all_signals.csv`
-- `outputs/cpm/SPY/1d/best_cpm_params.json`
-- `outputs/cpm/SPY/1d/cpm_search_results.csv`
-- `outputs/indicator_params/SPY/1d/ma_params.json`
-- `outputs/indicator_params/SPY/1d/rsi_params.json`
-- `outputs/indicator_params/SPY/1d/roc_params.json`
-- `outputs/indicator_params/SPY/1d/stochastic_params.json`
-- `outputs/indicator_params/SPY/1d/candle_params.json`
-- `outputs/signals/SPY/1d/SPY_all_indicator_signals.csv`
-- `outputs/figures/SPY/1d/*.png`
-
-## ESN 입력 컬럼
+## ESN Input Columns
 
 - `ma_signal`
 - `rsi_signal`
@@ -117,7 +69,33 @@ python -m src.pipeline.build_esn_dataset --config configs/spy_1d.yaml
 - `candle_bullish_engulfing_signal`
 - `candle_bearish_engulfing_signal`
 
-## 빠른 확인
+The default ESN input is `data/processed/{ticker}/{interval}/{ticker}_all_signals.csv`.
+If that file is missing, the ESN pipeline falls back to
+`outputs/signals/{ticker}/{interval}/{ticker}_all_indicator_signals.csv`.
+
+The ESN does not predict price. CPM turning points are converted into
+`triangle_target` in the range `[-1, 1]`, and the ESN learns this CPM-based
+trading score from indicator signal columns. Scores below `-threshold` are buy
+signals, scores above `threshold` are sell signals, and the rest are hold.
+
+Important leakage note: `triangle_target` is an offline teacher label derived
+from CPM turning points, so it can include future turning-point information. Test
+targets are used only as evaluation truth. A live trading decision should use
+the ESN output plus an online candidate-reversal confirmation/gating rule. This
+repository does not implement backtest or online candidate-reversal gating yet.
+
+## Main Outputs
+
+- `data/raw/SPY/1d/SPY.csv`
+- `data/processed/SPY/1d/SPY_clean.csv`
+- `data/processed/SPY/1d/SPY_with_tp.csv`
+- `data/processed/SPY/1d/SPY_all_signals.csv`
+- `outputs/signals/SPY/1d/SPY_all_indicator_signals.csv`
+- `outputs/esn/SPY/1d/esn_metrics.json`
+- `outputs/esn/SPY/1d/esn_predictions.csv`
+- `outputs/esn/SPY/1d/esn_config_used.json`
+
+## Quick Check
 
 ```python
 import pandas as pd
@@ -138,20 +116,10 @@ print(df[[
 ]].describe())
 ```
 
-## CPM 선택 방식
+## TODO
 
-- 설정 위치: `configs/spy_1d.yaml`
-- 탐색 범위: `cpm.p_values`, `cpm.t_values`
-- 탐색 결과: `outputs/cpm/SPY/1d/cpm_search_results.csv`
-- 선택 파라미터: `outputs/cpm/SPY/1d/best_cpm_params.json`
-- 기본 선택 방식: `pareto_knee`
-- 추가 선택 방식: `score`
-
-## 실행 TODO
-
-- ESN 학습/검증/예측 파이프라인 구현
-- ESN 출력 기반 trading rule 구현
-- backtest 및 성능 평가 구현
-- 전체 파이프라인 일괄 실행 스크립트 추가
-- CPM, indicator, GA fitness, ESN dataset merge 테스트 추가
-- ticker/interval별 config 예시 추가
+- ESN output based trading rule improvement
+- Backtest and performance evaluation
+- Walk-forward validation extension
+- Full pipeline batch execution script
+- Tests

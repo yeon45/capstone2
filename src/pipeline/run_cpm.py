@@ -78,8 +78,8 @@ def main() -> None:
 
     print(f"selected P: {P}")
     print(f"selected T: {T}")
-    print(f"bottom/buy labels: {int((labeled_df['turning_label'] == 1).sum())}")
-    print(f"top/sell labels: {int((labeled_df['turning_label'] == -1).sum())}")
+    print(f"bottom/buy labels: {int((labeled_df['turning_label'] == -1).sum())}")
+    print(f"top/sell labels: {int((labeled_df['turning_label'] == 1).sum())}")
     print(f"search results: {search_path}")
     print(f"best CPM params: {params_path}")
     print(f"labeled data: {tp_path}")

@@ -63,11 +63,14 @@ def calculate_signal_fitness(
     buy_signal_col: str = "ma_buy_signal",
     sell_signal_col: str = "ma_sell_signal",
     window: int = 5,
-    buy_label: int = 1,
-    sell_label: int = -1,
+    buy_label: int = -1,
+    sell_label: int = 1,
     false_signal_penalty: float = 0.0,
 ) -> tuple[float, dict]:
-    """Calculate signal fitness against fixed CPM turning labels."""
+    """Calculate signal fitness against CPM labels.
+
+    CPM label convention: bottom/buy=-1, top/sell=1.
+    """
 
     required = [label_col, buy_signal_col, sell_signal_col]
     missing = [col for col in required if col not in df.columns]
@@ -251,7 +254,10 @@ def calculate_price_error_signal_fitness(
     duplicate_signal_penalty: float = 0.25,
     normalize: str = "atr",
 ) -> tuple[float, dict]:
-    """Evaluate only non-zero signals against same-direction CPM turning points."""
+    """Evaluate signed signals against CPM turning points.
+
+    Signed signal convention: buy=-1, sell=1, hold=0.
+    """
 
     required = [signal_col, label_col, price_col, high_col, low_col, close_col]
     missing = [col for col in required if col not in df.columns]
@@ -276,10 +282,10 @@ def calculate_price_error_signal_fitness(
         atr_window=atr_window,
     )
 
-    buy_signals = np.flatnonzero(signals > 0).astype(int).tolist()
-    sell_signals = np.flatnonzero(signals < 0).astype(int).tolist()
-    bottom_tps = np.flatnonzero(labels == 1).astype(int).tolist()
-    top_tps = np.flatnonzero(labels == -1).astype(int).tolist()
+    buy_signals = np.flatnonzero(signals < 0).astype(int).tolist()
+    sell_signals = np.flatnonzero(signals > 0).astype(int).tolist()
+    bottom_tps = np.flatnonzero(labels == -1).astype(int).tolist()
+    top_tps = np.flatnonzero(labels == 1).astype(int).tolist()
 
     buy = _directional_price_error_matches(
         df,
@@ -421,7 +427,7 @@ def calculate_price_error_buy_sell_fitness(
     temp_df = df.copy()
     buy = pd.to_numeric(temp_df[buy_signal_col], errors="coerce").fillna(0)
     sell = pd.to_numeric(temp_df[sell_signal_col], errors="coerce").fillna(0)
-    temp_df[signed_col] = np.sign(buy - sell).astype(int)
+    temp_df[signed_col] = np.sign(sell - buy).astype(int)
     return calculate_price_error_signal_fitness(
         temp_df,
         signal_col=signed_col,

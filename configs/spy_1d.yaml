@@ -63,15 +63,35 @@ candle_ga:
   match_window: 5
 
 esn:
-  reservoir_size: 200
+  target_col: triangle_target
+  target_shift: 0
+
+  feature_cols:
+    - ma_signal
+    - rsi_signal
+    - roc_signal
+    - stoch_signal
+    - candle_hammer_hanging_man_signal
+    - candle_dark_cloud_cover_signal
+    - candle_piercing_line_signal
+    - candle_bullish_engulfing_signal
+    - candle_bearish_engulfing_signal
+
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+
+  reservoir_size: 300
   spectral_radius: 0.9
   sparsity: 0.1
+  input_scale: 0.5
   leaking_rate: 0.3
   ridge_alpha: 1.0
-  random_state: 42
   washout: 30
-  class_weight: balanced
-  train_ratio: 0.7
+  random_state: 42
+
+  threshold: 0.3
+  threshold_values: [0.2, 0.3, 0.4, 0.5]
 
 ma_bounds:
   n_min: 5
