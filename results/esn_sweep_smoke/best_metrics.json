@@ -1,0 +1,152 @@
+{
+  "run_id": "run_0001",
+  "ticker": "SPY",
+  "interval": "1d",
+  "input_path": "data\\processed\\SPY\\1d\\SPY_all_signals.csv",
+  "feature_cols": [
+    "ma_signal",
+    "rsi_signal",
+    "roc_signal",
+    "stoch_signal",
+    "candle_hammer_hanging_man_signal",
+    "candle_dark_cloud_cover_signal",
+    "candle_piercing_line_signal",
+    "candle_bullish_engulfing_signal",
+    "candle_bearish_engulfing_signal"
+  ],
+  "target_col": "triangle_target",
+  "target_shift": 0,
+  "split_indices": {
+    "train_end": 2888,
+    "val_end": 3506,
+    "n_rows": 4126
+  },
+  "selected_thresholds": {
+    "threshold": 0.2,
+    "validation_accuracy": 0.39967637540453077,
+    "validation_directional_accuracy": 0.5857605177993528
+  },
+  "train": {
+    "regression": {
+      "mse": 0.2612132156505207,
+      "mae": 0.42797994486018537,
+      "directional_accuracy": 0.6623512946116166
+    },
+    "classification_like": {
+      "accuracy": 0.33170048985304407,
+      "buy_precision": 0.8381877022653722,
+      "buy_recall": 0.3614794138171668,
+      "sell_precision": 0.7328519855595668,
+      "sell_recall": 0.29229661627069836,
+      "confusion_counts": {
+        "true_-1_pred_-1": 518,
+        "true_-1_pred_0": 770,
+        "true_-1_pred_1": 145,
+        "true_0_pred_-1": 9,
+        "true_0_pred_0": 24,
+        "true_0_pred_1": 3,
+        "true_1_pred_-1": 91,
+        "true_1_pred_0": 892,
+        "true_1_pred_1": 406
+      }
+    }
+  },
+  "validation": {
+    "regression": {
+      "mse": 0.30503331580913234,
+      "mae": 0.46839553923272725,
+      "directional_accuracy": 0.5857605177993528
+    },
+    "classification_like": {
+      "accuracy": 0.39967637540453077,
+      "buy_precision": 0.6651982378854625,
+      "buy_recall": 0.5171232876712328,
+      "sell_precision": 0.7946428571428571,
+      "sell_recall": 0.28343949044585987,
+      "confusion_counts": {
+        "true_-1_pred_-1": 151,
+        "true_-1_pred_0": 118,
+        "true_-1_pred_1": 23,
+        "true_0_pred_-1": 5,
+        "true_0_pred_0": 7,
+        "true_0_pred_1": 0,
+        "true_1_pred_-1": 71,
+        "true_1_pred_0": 154,
+        "true_1_pred_1": 89
+      }
+    }
+  },
+  "test": {
+    "regression": {
+      "mse": 0.3560562580839765,
+      "mae": 0.5055475000843054,
+      "directional_accuracy": 0.5693548387096774
+    },
+    "classification_like": {
+      "accuracy": 0.2854838709677419,
+      "buy_precision": 0.75,
+      "buy_recall": 0.2761904761904762,
+      "sell_precision": 0.5116279069767442,
+      "sell_recall": 0.29333333333333333,
+      "confusion_counts": {
+        "true_-1_pred_-1": 87,
+        "true_-1_pred_0": 145,
+        "true_-1_pred_1": 83,
+        "true_0_pred_-1": 2,
+        "true_0_pred_0": 2,
+        "true_0_pred_1": 1,
+        "true_1_pred_-1": 27,
+        "true_1_pred_0": 185,
+        "true_1_pred_1": 88
+      }
+    }
+  },
+  "config_used": {
+    "config_path": "configs/spy_1d_esn_sweep_smoke.yaml",
+    "ticker": "SPY",
+    "interval": "1d",
+    "esn": {
+      "target_col": "triangle_target",
+      "target_shift": 0,
+      "train_ratio": 0.7,
+      "val_ratio": 0.15,
+      "test_ratio": 0.15,
+      "reservoir_size": 20,
+      "spectral_radius": 0.9,
+      "sparsity": 0.1,
+      "input_scale": 0.5,
+      "leaking_rate": 0.3,
+      "ridge_alpha": 1.0,
+      "washout": 30,
+      "random_state": 42,
+      "threshold": 0.3,
+      "threshold_values": [
+        0.2,
+        0.3
+      ],
+      "buy_threshold_values": [
+        0.2,
+        0.3,
+        0.4,
+        0.5
+      ],
+      "sell_threshold_values": [
+        -0.2,
+        -0.3,
+        -0.4,
+        -0.5
+      ],
+      "feature_cols": [
+        "ma_signal",
+        "rsi_signal",
+        "roc_signal",
+        "stoch_signal",
+        "candle_hammer_hanging_man_signal",
+        "candle_dark_cloud_cover_signal",
+        "candle_piercing_line_signal",
+        "candle_bullish_engulfing_signal",
+        "candle_bearish_engulfing_signal"
+      ]
+    }
+  }
+}

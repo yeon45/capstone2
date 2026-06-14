@@ -57,6 +57,24 @@ python -m src.pipeline.build_esn_dataset --config configs/spy_1d.yaml
 python -m src.pipeline.run_esn --config configs/spy_1d.yaml
 ```
 
+## Run ESN Hyperparameter Sweep
+
+The single ESN command above still runs only the `esn:` section. To run the
+Cartesian product defined in `esn_sweep:`, use:
+
+```bash
+python -m src.pipeline.run_esn_sweep --config configs/spy_1d.yaml
+```
+
+Sweep outputs are written to `esn_sweep.output_dir`:
+
+- `sweep_results.csv`
+- `sweep_results.json`
+- `best_metrics.json`
+- `best_esn_config.yaml`
+- `best_esn_config.json`
+- `predictions/run_XXXX_predictions.csv` when `save_predictions: true`
+
 ## ESN Input Columns
 
 - `ma_signal`

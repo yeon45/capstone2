@@ -16,6 +16,7 @@ from src.cpm.core import turning_points_to_label_array
 from src.esn.dataset import build_triangle_target, make_esn_dataset, split_esn_arrays
 from src.esn.metrics import score_to_signal
 from src.esn.model import EchoStateNetwork
+from src.pipeline.run_esn_sweep import _is_better, _parameter_grid
 
 
 class TriangleTargetTests(unittest.TestCase):
@@ -165,6 +166,38 @@ class ScoreToSignalTests(unittest.TestCase):
     def test_score_to_signal_rejects_negative_threshold(self) -> None:
         with self.assertRaisesRegex(ValueError, "threshold must be non-negative"):
             score_to_signal(np.array([0.0]), threshold=-0.1)
+
+
+class ESNSweepTests(unittest.TestCase):
+    """Tests for ESN sweep configuration helpers."""
+
+    def test_parameter_grid_expands_cartesian_product(self) -> None:
+        grid = _parameter_grid(
+            {
+                "reservoir_size": [100, 200],
+                "spectral_radius": [0.8, 0.9],
+                "washout": [30],
+            }
+        )
+
+        self.assertEqual(len(grid), 4)
+        self.assertEqual(
+            grid[0],
+            {"reservoir_size": 100, "spectral_radius": 0.8, "washout": 30},
+        )
+        self.assertEqual(
+            grid[-1],
+            {"reservoir_size": 200, "spectral_radius": 0.9, "washout": 30},
+        )
+
+    def test_is_better_supports_max_and_min_modes(self) -> None:
+        candidate = {"val_directional_accuracy": 0.6, "val_mse": 0.2}
+        incumbent = {"val_directional_accuracy": 0.5, "val_mse": 0.3}
+
+        self.assertTrue(
+            _is_better(candidate, incumbent, "val_directional_accuracy", "max")
+        )
+        self.assertTrue(_is_better(candidate, incumbent, "val_mse", "min"))
 
 
 if __name__ == "__main__":

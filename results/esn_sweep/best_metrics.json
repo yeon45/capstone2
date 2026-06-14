@@ -1,0 +1,158 @@
+{
+  "run_id": "run_0012",
+  "ticker": "SPY",
+  "interval": "1d",
+  "input_path": "data\\processed\\SPY\\1d\\SPY_all_signals.csv",
+  "feature_cols": [
+    "ma_signal",
+    "rsi_signal",
+    "roc_signal",
+    "stoch_signal",
+    "candle_hammer_hanging_man_signal",
+    "candle_dark_cloud_cover_signal",
+    "candle_piercing_line_signal",
+    "candle_bullish_engulfing_signal",
+    "candle_bearish_engulfing_signal"
+  ],
+  "target_col": "triangle_target",
+  "target_shift": 0,
+  "split_indices": {
+    "train_end": 2888,
+    "val_end": 3506,
+    "n_rows": 4126
+  },
+  "selected_thresholds": {
+    "threshold": 0.2,
+    "validation_accuracy": 0.39158576051779936,
+    "validation_directional_accuracy": 0.6051779935275081
+  },
+  "train": {
+    "regression": {
+      "mse": 0.25670557813446004,
+      "mae": 0.4255375450073878,
+      "directional_accuracy": 0.6731980405878236
+    },
+    "classification_like": {
+      "accuracy": 0.33100069979006297,
+      "buy_precision": 0.8222222222222222,
+      "buy_recall": 0.3614794138171668,
+      "sell_precision": 0.7486136783733827,
+      "sell_recall": 0.2915766738660907,
+      "confusion_counts": {
+        "true_-1_pred_-1": 518,
+        "true_-1_pred_0": 782,
+        "true_-1_pred_1": 133,
+        "true_0_pred_-1": 10,
+        "true_0_pred_0": 23,
+        "true_0_pred_1": 3,
+        "true_1_pred_-1": 102,
+        "true_1_pred_0": 882,
+        "true_1_pred_1": 405
+      }
+    }
+  },
+  "validation": {
+    "regression": {
+      "mse": 0.29709594412105067,
+      "mae": 0.4645393463911558,
+      "directional_accuracy": 0.6051779935275081
+    },
+    "classification_like": {
+      "accuracy": 0.39158576051779936,
+      "buy_precision": 0.6512605042016807,
+      "buy_recall": 0.5308219178082192,
+      "sell_precision": 0.84375,
+      "sell_recall": 0.25796178343949044,
+      "confusion_counts": {
+        "true_-1_pred_-1": 155,
+        "true_-1_pred_0": 122,
+        "true_-1_pred_1": 15,
+        "true_0_pred_-1": 6,
+        "true_0_pred_0": 6,
+        "true_0_pred_1": 0,
+        "true_1_pred_-1": 77,
+        "true_1_pred_0": 156,
+        "true_1_pred_1": 81
+      }
+    }
+  },
+  "test": {
+    "regression": {
+      "mse": 0.3465974960774624,
+      "mae": 0.5036126556146011,
+      "directional_accuracy": 0.5887096774193549
+    },
+    "classification_like": {
+      "accuracy": 0.2645161290322581,
+      "buy_precision": 0.794392523364486,
+      "buy_recall": 0.2698412698412698,
+      "sell_precision": 0.49673202614379086,
+      "sell_recall": 0.25333333333333335,
+      "confusion_counts": {
+        "true_-1_pred_-1": 85,
+        "true_-1_pred_0": 154,
+        "true_-1_pred_1": 76,
+        "true_0_pred_-1": 1,
+        "true_0_pred_0": 3,
+        "true_0_pred_1": 1,
+        "true_1_pred_-1": 21,
+        "true_1_pred_0": 203,
+        "true_1_pred_1": 76
+      }
+    }
+  },
+  "config_used": {
+    "config_path": "configs/_tmp_spy_1d_esn_sweep_intended.yaml",
+    "ticker": "SPY",
+    "interval": "1d",
+    "esn": {
+      "target_col": "triangle_target",
+      "target_shift": 0,
+      "train_ratio": 0.7,
+      "val_ratio": 0.15,
+      "test_ratio": 0.15,
+      "reservoir_size": 100,
+      "spectral_radius": 0.85,
+      "sparsity": 0.1,
+      "input_scale": 0.5,
+      "leaking_rate": 0.3,
+      "ridge_alpha": 100.0,
+      "washout": 30,
+      "random_state": 42,
+      "threshold": 0.3,
+      "threshold_values": [
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9
+      ],
+      "buy_threshold_values": [
+        0.2,
+        0.3,
+        0.4,
+        0.5
+      ],
+      "sell_threshold_values": [
+        -0.2,
+        -0.3,
+        -0.4,
+        -0.5
+      ],
+      "feature_cols": [
+        "ma_signal",
+        "rsi_signal",
+        "roc_signal",
+        "stoch_signal",
+        "candle_hammer_hanging_man_signal",
+        "candle_dark_cloud_cover_signal",
+        "candle_piercing_line_signal",
+        "candle_bullish_engulfing_signal",
+        "candle_bearish_engulfing_signal"
+      ]
+    }
+  }
+}

@@ -14,8 +14,8 @@ with contextlib.redirect_stderr(io.StringIO()):
 from src.utils.paths import ensure_parent_dir
 
 
-def save_json(data: dict[str, Any], path: str | Path) -> None:
-    """Save a dictionary to JSON using UTF-8 and indent=2."""
+def save_json(data: Any, path: str | Path) -> None:
+    """Save JSON-serializable data using UTF-8 and indent=2."""
 
     output_path = Path(path)
     ensure_parent_dir(output_path)

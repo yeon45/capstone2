@@ -1,0 +1,143 @@
+ticker: SPY
+interval: 1d
+start: "2010-01-01"
+end: null
+
+data:
+  auto_download: true
+
+cpm:
+  p_values: [0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.10, 0.12]
+  t_values: [2, 4, 6, 8, 10, 12, 14, 16, 18]
+  selection_method: pareto_knee
+
+fitness:
+  max_time_window: 5
+  atr_window: 14
+  tau: 1.0
+  max_price_error: 2.0
+  false_signal_penalty: 2.0
+  missed_tp_penalty: 1.0
+  duplicate_signal_penalty: 0.25
+  normalize: atr
+
+ma_ga:
+  population_size: 50
+  generations: 30
+  cx_prob: 0.7
+  mut_prob: 0.3
+  seed: 42
+  match_window: 5
+
+rsi_ga:
+  population_size: 50
+  generations: 30
+  cx_prob: 0.7
+  mut_prob: 0.2
+  seed: 42
+  match_window: 5
+
+roc_ga:
+  population_size: 50
+  generations: 30
+  cx_prob: 0.7
+  mut_prob: 0.2
+  seed: 42
+  match_window: 5
+
+stochastic_ga:
+  population_size: 50
+  generations: 30
+  cx_prob: 0.7
+  mut_prob: 0.2
+  seed: 42
+  match_window: 5
+  use_cross: true
+
+candle_ga:
+  population_size: 50
+  generations: 30
+  cx_prob: 0.7
+  mut_prob: 0.2
+  seed: 42
+  match_window: 5
+
+esn:
+  target_col: triangle_target
+  target_shift: 0
+  feature_cols:
+    - ma_signal
+    - rsi_signal
+    - roc_signal
+    - stoch_signal
+    - candle_hammer_hanging_man_signal
+    - candle_dark_cloud_cover_signal
+    - candle_piercing_line_signal
+    - candle_bullish_engulfing_signal
+    - candle_bearish_engulfing_signal
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+  reservoir_size: 200
+  spectral_radius: 0.8
+  sparsity: 0.1
+  input_scale: 0.5
+  leaking_rate: 0.5
+  ridge_alpha: 1.0
+  washout: 30
+  random_state: 42
+  threshold_values: [0.2, 0.3, 0.4, 0.5]
+
+ma_bounds:
+  n_min: 5
+  n_max: 60
+  N_min: 20
+  N_max: 200
+  a_min: 1.2
+  a_max: 5.0
+  b_min: 0.5
+  b_max: 3.0
+  c_min: 0.001
+  c_max: 0.10
+
+rsi_bounds:
+  period_min: 5
+  period_max: 30
+  lower_min: 10
+  lower_max: 40
+  upper_min: 60
+  upper_max: 90
+
+roc_bounds:
+  period_min: 3
+  period_max: 30
+  buy_threshold_min: 0.1
+  buy_threshold_max: 10.0
+  sell_threshold_min: -10.0
+  sell_threshold_max: -0.1
+
+stochastic_bounds:
+  k_period_min: 5
+  k_period_max: 30
+  d_period_min: 3
+  d_period_max: 10
+  lower_min: 10
+  lower_max: 40
+  upper_min: 60
+  upper_max: 90
+
+candle_bounds:
+  a_min: 1.0
+  a_max: 5.0
+  b_min: 0.0
+  b_max: 1.0
+  c_min: 0.0
+  c_max: 1.0
+  d_min: 0.0
+  d_max: 0.5
+  e_min: 0.0
+  e_max: 0.5
+  f_min: 0.0
+  f_max: 0.5
+  g_min: 0.0
+  g_max: 0.5

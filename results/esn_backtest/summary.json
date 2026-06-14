@@ -1,0 +1,24 @@
+{
+  "split": "test",
+  "rows": 620,
+  "strategy": {
+    "initial_cash": 10000.0,
+    "final_value": 12020.822899106048,
+    "total_return": 0.20208228991060473,
+    "annualized_return": 0.07767891040448927,
+    "max_drawdown": -0.15261102505267776,
+    "sharpe_ratio": 0.6650144909398825,
+    "num_trades": 18,
+    "num_buy": 9,
+    "num_sell": 9,
+    "exposure_ratio": 0.36612903225806454,
+    "win_rate": 0.8888888888888888,
+    "buy_and_hold": {
+      "final_value": 16508.739330286262,
+      "total_return": 0.6508739330286262,
+      "annualized_return": 0.22599915241551272,
+      "max_drawdown": -0.189989041295049,
+      "sharpe_ratio": 1.3696388442129752
+    }
+  }
+}
